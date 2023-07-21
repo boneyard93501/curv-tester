@@ -1,0 +1,19 @@
+[package]
+name = "curv_test"
+version = "0.1.0"
+edition = "2018"
+
+[[bin]]
+name = "curv_test"
+path = "src/main.rs"
+
+[dependencies]
+marine-rs-sdk = "0.7.1"
+sha2 = "0.9" #"0.10.7"
+curv-kzen = { version = "0.10.0", default-features = false, features = [
+    "num-bigint",
+] }
+
+
+[dev-dependencies]
+marine-rs-sdk-test = "0.10.0"
