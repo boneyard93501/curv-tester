@@ -1,0 +1,3 @@
+service MyService("curv_test"):
+  pok_dlog(curv_name: string)  
+  vs_share(curv_name: string)

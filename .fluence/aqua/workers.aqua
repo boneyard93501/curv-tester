@@ -1,0 +1,38 @@
+data GetWorkersInfoDealsDefaultWorker:
+    dealId: string
+    chainNetwork: string
+    chainNetworkId: u64
+    dealIdOriginal: string
+    definition: string
+    timestamp: string
+
+data GetWorkersInfoDeals:
+    defaultWorker: ?GetWorkersInfoDealsDefaultWorker
+
+data GetWorkersInfoHostsDefaultWorkerInstallationSpells:
+    hostId: string
+    spellId: string
+    workerId: string
+
+data GetWorkersInfoHostsDefaultWorker:
+    definition: string
+    installationSpells: []GetWorkersInfoHostsDefaultWorkerInstallationSpells
+    relayId: string
+    timestamp: string
+
+data GetWorkersInfoHosts:
+    defaultWorker: ?GetWorkersInfoHostsDefaultWorker
+
+data GetWorkersInfo:
+    deals: GetWorkersInfoDeals
+    hosts: GetWorkersInfoHosts
+
+func getWorkersInfo() -> GetWorkersInfo:
+    <- GetWorkersInfo(
+        deals=GetWorkersInfoDeals(
+            defaultWorker=nil
+        ),
+        hosts=GetWorkersInfoHosts(
+            defaultWorker=nil
+        )
+    )

@@ -1,0 +1,3 @@
+[[module]]
+name = "curv_test"
+load_from = "/Users/bebo/localdev/curv-tester/target/wasm32-wasi/release/curv_test.wasm"

@@ -1,0 +1,76 @@
+aqua Main
+
+import "@fluencelabs/aqua-lib/builtin.aqua"
+import "@fluencelabs/registry/subnetwork.aqua"
+
+import "workers.aqua"
+import "services.aqua"
+
+-- IMPORTANT: Add exports for all functions that you want to run
+export helloWorld, helloWorldRemote, getInfo, getInfos, getInfosInParallel
+
+-- DOCUMENTATION:
+-- https://fluence.dev
+
+
+
+-- example of running services deployed using 'fluence deal deploy'
+-- with worker 'defaultWorker' which has service 'curv_test' with method 'greeting'
+
+export runDeployedServices
+
+data Answer:
+    answer: string
+    peer: string
+
+func runDeployedServices() -> *Answer:
+    workersInfo <- getWorkersInfo()
+    dealId = workersInfo.deals.defaultWorker!.dealId
+    answers: *Answer
+    workers <- resolveSubnetwork(dealId)
+    for w <- workers! par:
+        on w.metadata.peer_id via w.metadata.relay_id:
+            answer <- curv_test.greeting("fluence")
+            answers <<- Answer(answer=answer, peer=w.metadata.relay_id!)
+
+    join answers[workers!.length - 1]
+    par Peer.timeout(PARTICLE_TTL / 2, "TIMED OUT")
+    <- answers
+
+-- local
+func helloWorld(name: string) -> string:
+    <- Op.concat_strings("Hello, ", name)
+
+-- remote
+func helloWorldRemote(name: string) -> string:
+    on HOST_PEER_ID:
+        hello_msg <- helloWorld(name)
+        from_msg <- Op.concat_strings(hello_msg, "! From ")
+        from_peer_msg <- Op.concat_strings(from_msg, HOST_PEER_ID)
+    <- from_peer_msg
+
+-- request response
+func getInfo() -> Info, PeerId:
+    on HOST_PEER_ID:
+        info <- Peer.identify()
+    <- info, HOST_PEER_ID
+
+-- iterate through several peers
+func getInfos(peers: []PeerId) -> []Info:
+    infos: *Info
+    for p <- peers:
+        on p:
+            infos <- Peer.identify()
+    <- infos
+
+-- parallel computation
+func getInfosInParallel(peers: []PeerId) -> []Info:
+    infos: *Info
+    for p <- peers par:
+        on p:
+            infos <- Peer.identify()
+
+    join infos[Op.array_length(peers) - 1] -- "-1" because it's 0-based
+    par Peer.timeout(PARTICLE_TTL / 2, "")
+
+    <- infos
