@@ -3,6 +3,11 @@ use marine_rs_sdk::marine;
 
 use curv::elliptic::curves::*;
 
+use secp256k1::rand::rngs::OsRng;
+use secp256k1::{Secp256k1 as NSecp256k1, Message as NMessage};
+use bitcoin_hashes::sha256;
+
+
 pub fn main() {}
 
 use curv::elliptic::curves::*;
@@ -102,3 +107,45 @@ fn vs_share(curv_name: String) {
         None => eprintln!("Missing curve name"),
     }
 }
+
+
+
+#[marine]
+fn secp_test() {
+    let secp = NSecp256k1::new();
+    let mut rng = OsRng::new().expect("OsRng");
+    let (secret_key, public_key) = secp.generate_keypair(&mut rng);
+    // let message = NMessage::from_hashed_data::<sha256::Hash>("Hello World!".as_bytes());
+
+    // let sig = secp.sign(&message, &secret_key);
+}
+
+/*
+use bitcoin_hashes::{sha256, Hash};
+use secp256k1::{ecdsa, Error, Message, PublicKey, Secp256k1, SecretKey, Signing, Verification};
+
+fn recover<C: Verification>(
+    secp: &Secp256k1<C>,
+    msg: &[u8],
+    sig: [u8; 64],
+    recovery_id: u8,
+) -> Result<PublicKey, Error> {
+    let msg = sha256::Hash::hash(msg);
+    let msg = Message::from_slice(msg.as_ref())?;
+    let id = ecdsa::RecoveryId::from_i32(recovery_id as i32)?;
+    let sig = ecdsa::RecoverableSignature::from_compact(&sig, id)?;
+
+    secp.recover_ecdsa(&msg, &sig)
+}
+
+fn sign_recovery<C: Signing>(
+    secp: &Secp256k1<C>,
+    msg: &[u8],
+    seckey: [u8; 32],
+) -> Result<ecdsa::RecoverableSignature, Error> {
+    let msg = sha256::Hash::hash(msg);
+    let msg = Message::from_slice(msg.as_ref())?;
+    let seckey = SecretKey::from_slice(&seckey)?;
+    Ok(secp.sign_ecdsa_recoverable(&msg, &seckey))
+}
+*/

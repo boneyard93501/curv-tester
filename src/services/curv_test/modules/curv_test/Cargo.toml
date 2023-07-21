@@ -8,12 +8,17 @@ name = "curv_test"
 path = "src/main.rs"
 
 [dependencies]
+bitcoin_hashes = "0.12.0"
+secp256k1 = { version = "0.20.0", features = [
+    # "serde",
+    # "rand-std",
+    # "global-context",
+    "alloc",
+] }
 marine-rs-sdk = "0.7.1"
 sha2 = "0.9" #"0.10.7"
 curv-kzen = { version = "0.10.0", default-features = false, features = [
     "num-bigint",
 ] }
-
-
 [dev-dependencies]
 marine-rs-sdk-test = "0.10.0"

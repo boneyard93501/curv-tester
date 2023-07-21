@@ -1,3 +1,4 @@
-service MyService("curv_test"):
+service CurvTest("curv_test"):
   pok_dlog(curv_name: string)  
+  secp_test()  
   vs_share(curv_name: string)

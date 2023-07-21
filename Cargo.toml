@@ -1,0 +1,2 @@
+[workspace]
+members = [ "src/services/curv_test/modules/curv_test" ]
