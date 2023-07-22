@@ -2,16 +2,14 @@
 use marine_rs_sdk::marine;
 
 use curv::elliptic::curves::*;
-
-use secp256k1::rand::rngs::OsRng;
-use secp256k1::{Secp256k1 as NSecp256k1, Message as NMessage};
+use sha2::Sha256;
+// use secp256k1::rand::rngs::OsRng;
+// use secp256k1::{Secp256k1 as NSecp256k1, Message as NMessage};
 use bitcoin_hashes::sha256;
 
 
 pub fn main() {}
 
-use curv::elliptic::curves::*;
-use sha2::Sha256;
 
 /// Sigma protocol for proof of knowledge of discrete log
 /// TO RUN:
@@ -24,8 +22,9 @@ use sha2::Sha256;
 
 pub fn dlog_proof<E: Curve>() {
     use curv::cryptographic_primitives::proofs::sigma_dlog::*;
-
+    println!("got curv");
     let witness = Scalar::random();
+    println!("got witness: {:?}", witness);
     let dlog_proof = DLogProof::<E, Sha256>::prove(&witness);
     assert!(DLogProof::verify(&dlog_proof).is_ok());
 }
@@ -78,48 +77,80 @@ pub fn secret_sharing_3_out_of_5<E: Curve>() {
 
 
 #[marine]
-fn pok_dlog(curv_name: String) {
+fn pok_dlog() {
     // let curve_name = std::env::args().nth(1);
-    let curve_name = Some(curv_name);
-    match curve_name.as_deref() {
-        Some("secp256k1") => dlog_proof::<Secp256k1>(),
-        Some("ristretto") => dlog_proof::<Ristretto>(),
-        Some("ed25519") => dlog_proof::<Ed25519>(),
-        Some("bls12_381_1") => dlog_proof::<Bls12_381_1>(),
-        Some("bls12_381_2") => dlog_proof::<Bls12_381_2>(),
-        Some("p256") => dlog_proof::<Secp256r1>(),
-        Some(unknown_curve) => eprintln!("Unknown curve: {}", unknown_curve),
-        None => eprintln!("Missing curve name"),
+    let curve_names = vec![
+        // "secp256k1",
+        "ristretto",
+        "ed25519",
+        "bls12_381_1",
+        "bls12_381_2",
+        "secp256k1",
+        "p256"];
+    for cn in curve_names {
+        let curve_name = Some(cn);
+        // if curve_name.unwrap() != "p256" {
+        //      return;
+        // }
+        println!("pok_dlog curve requested: {}", curve_name.clone().unwrap());
+        match curve_name.as_deref() {
+            Some("secp256k1") => dlog_proof::<Secp256k1>(),
+            Some("ristretto") => dlog_proof::<Ristretto>(),
+            Some("ed25519") => dlog_proof::<Ed25519>(),
+            Some("bls12_381_1") => dlog_proof::<Bls12_381_1>(),
+            Some("bls12_381_2") => dlog_proof::<Bls12_381_2>(),
+            Some("p256") => dlog_proof::<Secp256r1>(),
+            Some(unknown_curve) => eprintln!("Unknown curve: {}", unknown_curve),
+            None => eprintln!("Missing curve name"),
+        }
+        println!("pok_dlog curve used: {}", curve_name.clone().unwrap());
     }
 }
 
 #[marine]
-fn vs_share(curv_name: String) {
-    let curve_name = Some(curv_name);
-    match curve_name.as_deref() {
-        Some("secp256k1") => secret_sharing_3_out_of_5::<Secp256k1>(),
-        Some("ristretto") => secret_sharing_3_out_of_5::<Ristretto>(),
-        Some("ed25519") => secret_sharing_3_out_of_5::<Ed25519>(),
-        Some("bls12_381_1") => secret_sharing_3_out_of_5::<Bls12_381_1>(),
-        Some("bls12_381_2") => secret_sharing_3_out_of_5::<Bls12_381_2>(),
-        Some("p256") => secret_sharing_3_out_of_5::<Secp256r1>(),
-        Some(unknown_curve) => eprintln!("Unknown curve: {}", unknown_curve),
-        None => eprintln!("Missing curve name"),
-    }
+fn pok_dlog_secp() {
+    let res = dlog_proof::<Secp256k1>();
+    println!("pok_dlog secp256K1: {:?}", res);
 }
 
 
 
+#[marine]
+fn vs_share() {
+    let curve_names: Vec<&str> = vec![
+        "secp256k1",
+        "ristretto",
+        "ed25519",
+        "bls12_381_1",
+        "bls12_381_2",
+        "p256"];
+    for cn in curve_names {
+        let curve_name = Some(cn);
+        match curve_name.as_deref() {
+            Some("secp256k1") => secret_sharing_3_out_of_5::<Secp256k1>(),
+            Some("ristretto") => secret_sharing_3_out_of_5::<Ristretto>(),
+            Some("ed25519") => secret_sharing_3_out_of_5::<Ed25519>(),
+            Some("bls12_381_1") => secret_sharing_3_out_of_5::<Bls12_381_1>(),
+            Some("bls12_381_2") => secret_sharing_3_out_of_5::<Bls12_381_2>(),
+            Some("p256") => secret_sharing_3_out_of_5::<Secp256r1>(),
+            Some(unknown_curve) => eprintln!("Unknown curve: {}", unknown_curve),
+            None => eprintln!("Missing curve name"),
+        }
+    }
+
+}
+/*
 #[marine]
 fn secp_test() {
     let secp = NSecp256k1::new();
     let mut rng = OsRng::new().expect("OsRng");
     let (secret_key, public_key) = secp.generate_keypair(&mut rng);
+    // let (secret_key, public_key) = secp.generate_keypair(&mut OsRng);   
     // let message = NMessage::from_hashed_data::<sha256::Hash>("Hello World!".as_bytes());
 
     // let sig = secp.sign(&message, &secret_key);
 }
-
+*/
 /*
 use bitcoin_hashes::{sha256, Hash};
 use secp256k1::{ecdsa, Error, Message, PublicKey, Secp256k1, SecretKey, Signing, Verification};

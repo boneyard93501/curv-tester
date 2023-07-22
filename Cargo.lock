@@ -581,7 +581,6 @@ dependencies = [
  "curv-kzen",
  "marine-rs-sdk",
  "marine-rs-sdk-test",
- "secp256k1",
  "sha2 0.9.9",
 ]
 

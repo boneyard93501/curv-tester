@@ -9,12 +9,13 @@ path = "src/main.rs"
 
 [dependencies]
 bitcoin_hashes = "0.12.0"
-secp256k1 = { version = "0.20.0", features = [
-    # "serde",
-    # "rand-std",
-    # "global-context",
-    "alloc",
-] }
+# secp256k1 = { version = "0.27.0", features = [
+# secp256k1 = { version = "0.2.0", features = [
+#    "serde",
+#    "rand-std",
+#    "global-context",
+# "alloc",
+#] }
 marine-rs-sdk = "0.7.1"
 sha2 = "0.9" #"0.10.7"
 curv-kzen = { version = "0.10.0", default-features = false, features = [
